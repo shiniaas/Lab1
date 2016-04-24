@@ -200,7 +200,14 @@ int byteNot(int x, int n) {
  *   Rating: 2 
  */
 int byteXor(int x, int y, int n) {
-  return 2;
+	int x_need, y_need, mask, xor, result;	
+	mask = 0xff << (n << 3);
+	x_need = mask & x;
+	y_need = mask & y;
+	xor = x_need ^ y_need;
+	result = !!xor;
+	return result;
+	
 }
 /* 
  *   logicalAnd - x && y
@@ -209,7 +216,7 @@ int byteXor(int x, int y, int n) {
  *   Rating: 3 
  */
 int logicalAnd(int x, int y) {
-  return 2;
+	return (!!x)&(!!y);
 }
 /* 
  *   logicalOr - x || y
@@ -218,7 +225,7 @@ int logicalAnd(int x, int y) {
  *   Rating: 3 
  */
 int logicalOr(int x, int y) {
-  return 2;
+	return (!!x)|(!!y);
 }
 /* 
  * rotateLeft - Rotate x to the left by n
@@ -229,7 +236,12 @@ int logicalOr(int x, int y) {
  *   Rating: 3 
  */
 int rotateLeft(int x, int n) {
-  return 2;
+	int h_byte, l_byte, r_move, result;
+	h_byte = x << n;
+	r_move = 33 + ~n;
+	l_byte = (x >> r_move) & ~(~0 << n);
+	result = h_byte | l_byte;
+	return result;
 }
 /*
  * parityCheck - returns 1 if x contains an odd number of 1's
@@ -239,7 +251,14 @@ int rotateLeft(int x, int n) {
  *   Rating: 4
  */
 int parityCheck(int x) {
-  return 2;
+	int x16, x8, x4, x2, x1, result;
+	x16 = (x >> 16) ^ x;
+	x8 = (x16 >> 8) ^ x16;
+	x4 = (x8 >> 4) ^ x8;
+	x2 = (x4 >> 2) ^ x4;
+	x1 = (x2 >> 1) ^ x2;
+	result = x1 & 1;
+	return result;
 }
 /*
  * mul2OK - Determine if can compute 2*x without overflow
@@ -251,7 +270,11 @@ int parityCheck(int x) {
  *   Rating: 2
  */
 int mul2OK(int x) {
-  return 2;
+	int h_old, h_new, sum;
+	sum = x << 1;
+	h_old = x >> 31;
+	h_new = sum >> 31;
+	return ((h_old & 1) ^ (h_new & 1)) ^ 1;
 }
 /*
  * mult3div2 - multiplies by 3/2 rounding toward 0,
