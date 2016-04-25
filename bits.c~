@@ -288,7 +288,14 @@ int mul2OK(int x) {
  *   Rating: 2
  */
 int mult3div2(int x) {
-  return 2;
+	int temp, h_b, l_b, a_or_s, result;
+	temp = x << 1;
+	temp = temp + x;
+	h_b = temp & (1 << 31);
+	l_b = temp & 1;
+	a_or_s = (~l_b + 1) & (((!!h_b) << 1) + ~0);
+	result = (temp + a_or_s) >> 1;
+	return result;
 }
 /* 
  * subOK - Determine if can compute x-y without overflow
@@ -299,7 +306,13 @@ int mult3div2(int x) {
  *   Rating: 3
  */
 int subOK(int x, int y) {
-  return 2;
+	int x_sign, y_sign, sub, sub_sign, result;
+	x_sign = (x >> 31) & 1;
+	y_sign = (y >> 31) & 1;
+	sub = x + ~y + 1;
+	sub_sign = (sub >> 31) & 1;
+	result = (x_sign ^ y_sign) & (sub_sign ^ x_sign);
+	return !result;
 }
 /* 
  * absVal - absolute value of x
@@ -310,7 +323,11 @@ int subOK(int x, int y) {
  *   Rating: 4
  */
 int absVal(int x) {
-  return 2;
+	int h_sign, mask, result;
+	h_sign = (x >> 31) & 1;
+	mask = ~0 + h_sign;
+	result = (mask & x) | (~mask & (~x + 1));
+	return result;
 }
 /* 
  * float_abs - Return bit-level equivalent of absolute value of f for
@@ -324,7 +341,19 @@ int absVal(int x) {
  *   Rating: 2
  */
 unsigned float_abs(unsigned uf) {
-  return 2;
+	unsigned sign = (uf >> 31) & 1;
+	unsigned result = uf;
+	unsigned exp = (uf >> 23) & 0xff;
+	unsigned man = uf & 0x7fffff;
+	if(exp == 0xff && man != 0)
+	{
+		return uf;
+	}
+	if(sign)
+	{
+		result = result & 0x7fffffff;
+	}
+	return result;
 }
 /* 
  * float_f2i - Return bit-level equivalent of expression (int) f
@@ -339,5 +368,33 @@ unsigned float_abs(unsigned uf) {
  *   Rating: 4
  */
 int float_f2i(unsigned uf) {
-  return 2;
+	unsigned sign = uf >> 31;
+	unsigned exp = (uf >> 23) & 0xff;
+	unsigned man = uf & 0x7fffff;
+	if(exp == 0xff)
+	{
+		return 0x80000000;
+	}
+	if(exp == 0x7f && man == 0)
+		man = 1;
+	if(exp >= 127)
+	{
+		while(exp > 127)
+		{
+			man = man * 2;
+			exp--;
+		}
+	}
+	else
+	{
+		while(exp < 127)
+		{
+			man = man / 2;
+			exp++;
+		}
+	}
+	if(sign)
+		return man;
+	else
+		return -man;  	
 }
