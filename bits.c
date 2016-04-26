@@ -371,30 +371,32 @@ int float_f2i(unsigned uf) {
 	unsigned sign = uf >> 31;
 	unsigned exp = (uf >> 23) & 0xff;
 	unsigned man = uf & 0x7fffff;
-	if(exp == 0xff)
+	unsigned tail;
+	unsigned len;
+	if(exp == 0x7f)
 	{
+		if(sign)
+			return -1;
+		else
+			return 1;
+	}
+	if(exp > 127)
+	{
+		len = exp - 127;
+	}
+	else
+	{
+		return 0;
+	}
+	tail = man | 0x800000;
+	if(len > 31)
 		return 0x80000000;
-	}
-	if(exp == 0x7f && man == 0)
-		man = 1;
-	if(exp >= 127)
-	{
-		while(exp > 127)
-		{
-			man = man * 2;
-			exp--;
-		}
-	}
+	else if(len < 23)
+		tail = tail >> (23 - len);
 	else
-	{
-		while(exp < 127)
-		{
-			man = man / 2;
-			exp++;
-		}
-	}
+		tail = tail << (len - 23);
 	if(sign)
-		return -man;
+		return -tail;
 	else
-		return man;  	
+		return tail;  	
 }
