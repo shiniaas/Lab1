@@ -395,7 +395,6 @@ int float_f2i(unsigned uf) {
 		tail = tail >> (23 - len);
 	else
 		tail = tail << (len - 23);
-	}
 	if(sign)
 		return -tail;
 	else
