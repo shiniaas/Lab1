@@ -324,11 +324,9 @@ int subOK(int x, int y) {
  */
 int absVal(int x) {
 	int h_sign, mask, result;
-	h_sign = ((x >> 31) & 1) << 31;
-	mask = (~x + 1) & ~(1 << 31);
-	result = h_sign | mask;
-	//mask = ~0 + h_sign;
-	//result = (mask & x) | (~mask & (~x + 1));
+	h_sign = (x >> 31) & 1;
+	mask = ~0 + h_sign;
+	result = (mask & x) | (~mask & (~x + 1));
 	return result;
 }
 /* 
